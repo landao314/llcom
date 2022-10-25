@@ -1,0 +1,24 @@
+--ploy=x^8+x^2+X^1+1 init=0x00
+function CRC16_MODBUS(Data)
+	local DataLen = #Data
+	local crc8 = 0
+	for i=1,DataLen,1 do
+		local d = Data:byte(i)
+		crc8 = (crc8 ~ d) & 0xFF
+		for j=1,8,1 do
+			if ((crc8 & 0x80) > 0) then
+				crc8 = crc8 << 1
+                crc8 = (crc8 ~ 0x07) & 0xFF
+			else
+				crc8 = crc8 << 1
+			end	
+		end
+	end
+	return crc8
+end
+local byteArray = uartData
+local crc = CRC16_MODBUS(byteArray)
+local charArray = string.toHex(byteArray)
+charArray = charArray .. string.format(" %02X",crc)
+uartData = string.fromHex(charArray)
+return uartData
